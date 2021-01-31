@@ -4,34 +4,50 @@
     <meta charset="UTF-8">
     <title>Circuit Analiser</title>
     <link rel="stylesheet" href="static/style.css">
-    <!--
-    <script language="JavaScript" type="text/javascript" src="static/jquery-1.2.6.min.js"></script>
-    <script language="JavaScript" type="text/javascript" src="static/jquery-ui-personalized-1.5.2.packed.js"></script>
-    <script language="JavaScript" type="text/javascript" src="static/sprinkle.js"></script>
-    -->
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({tex2jax: {inlineMath: [['$','$'], ['\\(','\\)']]}});
+    </script>
+    <script type="text/javascript"
+      src="http://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+    </script>
     <script src="static/script.js"></script>
 </head>
 <body>
 </body>
     <script>
+        x = {{x}};
+        y = {{y}};
+        createData();
+        sources = {{files|tojson}};
+        counters = {{counters|tojson}};
+        labels = {{labels|tojson}};
     </script>
     <div id="top">
-        {% for i in range(files|length) %}
-        <ul><input type="image" id="t{{i}}" onclick="change({{i}})" src={{files[i]}}></ul>
-        {% endfor %}
+        <div id="inputs"></div>
+        <div id="menu">
+            {% for i in range(files|length - 1) %}
+            <ul><input type="image" id="t{{i}}" onclick="val = {{i}}" src={{files[i]}}></ul>
+            {% endfor %}
+        </div>
     </div>
+    <hr>
     <div id="content">
         <table>
-        {% for i in range(20) %}
+        {% for i in range(y) %}
         <tr>
-            {% for j in range(30) %}
-            <td>
-                <input type="image" id="{{i*100+j}}" src="/static/images/dot.svg" onclick="clickButton({{i*100+j}},
-                {{files}})">
+            {% for j in range(x) %}
+            <td id="c{{i*100+j}}">
+                <input type="image" src="/static/images/blank.svg" id="i{{i*100+j}}" onclick="clickButton({{i*100+j}})"
+                onmouseover="onMouse({{i*100+j}})" onmouseout="offMouse({{i*100+j}})">
+                <div class="label" id="l{{i*100+j}}"></div>
+                <div class="drawings" id="d{{i*100+j}}"></div>
             </td>
             {% endfor %}
         </tr>
         {% endfor %}
+        <script>
+            updateBoard();
+        </script>
         </table>
     </div>
 

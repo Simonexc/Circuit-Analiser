@@ -13,7 +13,7 @@
    version="1.1"
    id="svg8"
    inkscape:version="1.0.1 (3bc2e813f5, 2020-09-07)"
-   sodipodi:docname="resistor.svg">
+   sodipodi:docname="blank.svg">
   <defs
      id="defs2" />
   <sodipodi:namedview
@@ -23,9 +23,9 @@
      borderopacity="1.0"
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
-     inkscape:zoom="11.2"
-     inkscape:cx="4.2798038"
-     inkscape:cy="27.268714"
+     inkscape:zoom="7.9195959"
+     inkscape:cx="6.8069287"
+     inkscape:cy="30.399933"
      inkscape:document-units="px"
      inkscape:current-layer="layer1"
      inkscape:document-rotation="0"
@@ -46,28 +46,12 @@
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title />
+        <dc:title></dc:title>
       </cc:Work>
     </rdf:RDF>
   </metadata>
   <g
      inkscape:label="Layer 1"
      inkscape:groupmode="layer"
-     id="layer1">
-    <rect
-       style="fill:#999999;fill-opacity:0.4;stroke:#000000;stroke-width:0.264586;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
-       id="rect14"
-       width="2.3814156"
-       height="10.319012"
-       x="5.4239597"
-       y="1.4552096" />
-    <path
-       style="fill:none;stroke:#000000;stroke-width:0.515864;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
-       d="M 6.6145832,1.5875 V 0"
-       id="path839" />
-    <path
-       style="fill:none;stroke:#000000;stroke-width:0.515863;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
-       d="m 6.614546,13.229167 v -1.5875"
-       id="path839-6" />
-  </g>
+     id="layer1" />
 </svg>
