@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Circuit Analiser</title>
+    <link rel="stylesheet" href="static/style.css">
+    <!--
+    <script language="JavaScript" type="text/javascript" src="static/jquery-1.2.6.min.js"></script>
+    <script language="JavaScript" type="text/javascript" src="static/jquery-ui-personalized-1.5.2.packed.js"></script>
+    <script language="JavaScript" type="text/javascript" src="static/sprinkle.js"></script>
+    -->
+    <script src="static/script.js"></script>
+</head>
+<body>
+</body>
+    <script>
+    </script>
+    <div id="top">
+        {% for i in range(files|length) %}
+        <ul><input type="image" id="t{{i}}" onclick="change({{i}})" src={{files[i]}}></ul>
+        {% endfor %}
+    </div>
+    <div id="content">
+        <table>
+        {% for i in range(20) %}
+        <tr>
+            {% for j in range(30) %}
+            <td>
+                <input type="image" id="{{i*100+j}}" src="/static/images/dot.svg" onclick="clickButton({{i*100+j}},
+                {{files}})">
+            </td>
+            {% endfor %}
+        </tr>
+        {% endfor %}
+        </table>
+    </div>
+
+
+</body>
+</html>
