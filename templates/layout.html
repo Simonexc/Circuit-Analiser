@@ -17,13 +17,17 @@
     <script>
         x = {{x}};
         y = {{y}};
-        createData();
         sources = {{files|tojson}};
         counters = {{counters|tojson}};
         labels = {{labels|tojson}};
+        rotation_modes = {{rotation_modes|tojson}};
+        createData();
     </script>
     <div id="top">
-        <div id="inputs"></div>
+        <div id="inputs">
+            <ul><input type="image" onclick="rotate()" src="/static/images/rotate.svg"></ul>
+            <ul><input type="button" onclick="sendData()"></ul>
+        </div>
         <div id="menu">
             {% for i in range(files|length - 1) %}
             <ul><input type="image" id="t{{i}}" onclick="val = {{i}}" src={{files[i]}}></ul>
