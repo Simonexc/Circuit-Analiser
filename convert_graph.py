@@ -15,6 +15,22 @@ def find_intersections(grid, labels):
     return grid
 
 
+def find_switches(grid, labels, state):
+    for i, l in enumerate(grid):
+        for j, cell in enumerate(l):
+            if labels[cell[0]] == "S":
+                cell[2] = (cell[2] + 90*state)%360
+                if cell[2] == 0 or cell[2] == 180:
+                    grid[i][j-1][0] = 0
+                    grid[i][j+1][0] = 0
+                else:
+                    grid[i-1][j][0] = 0
+                    grid[i+1][j][0] = 0
+                grid[i][j][0] = 1
+
+    return grid
+
+
 def convert_to_graph(grid, labels, rotation_modes, sources_direction):
     starting_point = None
     for i, l in enumerate(grid):
@@ -28,14 +44,12 @@ def convert_to_graph(grid, labels, rotation_modes, sources_direction):
     y, x = len(grid), len(grid[0])
     point = grid[starting_point[0]][starting_point[1]]
     label = labels[point[0]] + str(point[1])
-    start_points = [[starting_point, label, (-1, -1)]]
+    start_points = [[starting_point, label, []]]
     last_name = label
     graph = {label: []}
-    visited = [label]
 
     while start_points:
         act_point, name, vis = start_points[-1]
-        print("----", name)
         remove = True
         if name != "W":
             last_name = name
@@ -75,8 +89,9 @@ def convert_to_graph(grid, labels, rotation_modes, sources_direction):
                             act_label = sources_direction[labels[p[0]]] + str(p[1])
                             if orient[i % 2] != p[2]:
                                 act_label, label = label, act_label
-
+                        print(start_points)
                         if label[0] == labels[-1]:
+                            print(start_points)
                             start_points[-1][2].append(label)
 
                         names_visited = []
@@ -105,8 +120,6 @@ def convert_to_graph(grid, labels, rotation_modes, sources_direction):
             start_points.pop()
             grid[act_point[0]][act_point[1]][0] = 0
         elif name[0] != labels[-1]:
-            print(grid)
-            print(name)
             start_points.pop(-2)
             grid[act_point[0]][act_point[1]][0] = 0
 

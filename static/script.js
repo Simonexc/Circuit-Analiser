@@ -7,11 +7,18 @@ var counters = [];
 var labels = [];
 var changes = [];
 var rotation = 0;
-var rotation_modes = []
+var rotation_modes = [];
+var divContent = [];
+var Cs = [];
+var Ls = [];
+var Es = [];
+var Is = [];
+var Rs = [];
 
 function rotate()
 {
     rotation = (rotation+90)%360;
+    console.log(rotation);
 }
 
 function createData()
@@ -20,12 +27,15 @@ function createData()
     {
         var l = [];
         var l_changes = [];
+        var l_drawings = [];
         for (j = 0; j < x; j++)
         {
+            l_drawings.push(document.getElementById("d"+(i*100+j)).innerHTML);
             counters[0]++;
             l.push([0, counters[0], 0]);
             l_changes.push(true);
         }
+        divContent.push(l_drawings);
         data.push(l);
         changes.push(l_changes);
     }
@@ -54,7 +64,8 @@ function addDrawings(act_val, drawingsDiv, opacity, rect, rot, x1, y1)
         var count_legs = 0;
         if (y1 > 0) {
             var p = data[y1-1][x1];
-            if (p[0] == 1 || p[0] == sources.length - 1 || (p[0] != 0 && (p[2] == 0 || p[2] == 180))) {
+            if (p[0] == 1 || labels[p[0]] == "S" || p[0] == sources.length - 1 ||
+               (p[0] != 0 && (p[2] == 0 || p[2] == 180))) {
                 var img = createImage(act_val, rect);
                 img.style.opacity = opacity.toString();
                 drawingsDiv.appendChild(img);
@@ -63,7 +74,8 @@ function addDrawings(act_val, drawingsDiv, opacity, rect, rot, x1, y1)
         }
         if (y1 < y-1) {
             var p = data[y1+1][x1];
-            if (p[0] == 1 || p[0] == sources.length - 1 || (p[0] != 0 && (p[2] == 0 || p[2] == 180))) {
+            if (p[0] == 1 || labels[p[0]] == "S" || p[0] == sources.length - 1 ||
+               (p[0] != 0 && (p[2] == 0 || p[2] == 180))) {
                 var img = createImage(act_val, rect);
                 img.style.opacity = opacity.toString();
                 img.style.transform = "rotate(180deg)";
@@ -73,7 +85,8 @@ function addDrawings(act_val, drawingsDiv, opacity, rect, rot, x1, y1)
         }
         if (x1 > 0) {
             var p = data[y1][x1-1];
-            if (p[0] == 1 || p[0] == sources.length - 1 || (p[0] != 0 && (p[2] == 90 || p[2] == 270))) {
+            if (p[0] == 1 || labels[p[0]] == "S"|| p[0] == sources.length - 1 ||
+               (p[0] != 0 && (p[2] == 90 || p[2] == 270))) {
                 var img = createImage(act_val, rect);
                 img.style.opacity = opacity.toString();
                 img.style.transform = "rotate(270deg)";
@@ -83,7 +96,8 @@ function addDrawings(act_val, drawingsDiv, opacity, rect, rot, x1, y1)
         }
         if (x1 < x-1) {
             var p = data[y1][x1+1];
-            if (p[0] == 1 || p[0] == sources.length - 1 || (p[0] != 0 && (p[2] == 90 || p[2] == 270))) {
+            if (p[0] == 1 || labels[p[0]] == "S" || p[0] == sources.length - 1 ||
+               (p[0] != 0 && (p[2] == 90 || p[2] == 270))) {
                 var img = createImage(act_val, rect);
                 img.style.opacity = opacity.toString();
                 img.style.transform = "rotate(90deg)";
@@ -95,7 +109,8 @@ function addDrawings(act_val, drawingsDiv, opacity, rect, rot, x1, y1)
             var img = createImage(sources.length - 1, rect);
             img.style.opacity = opacity.toString();
             drawingsDiv.appendChild(img);
-            data[y1][x1][2] = 360;
+            if (opacity == 1)
+                data[y1][x1][2] = 360;
         }
     }
     else {
@@ -152,7 +167,7 @@ function updateBoard()
                 element = document.getElementById("i"+id);
                 var rect = element.getBoundingClientRect();
 
-                labelDiv = document.getElementById("l"+id);
+                var labelDiv = document.getElementById("l"+id);
                 //labelDiv.style.top = rect.top.toString()+"px";
                 //labelDiv.style.left = rect.left.toString()+"px";
                 labelDiv.innerHTML = "";
@@ -162,11 +177,12 @@ function updateBoard()
                     MathJax.Hub.Queue(["Typeset",MathJax.Hub,labelDiv]);
                 }
 
-                drawingsDiv = document.getElementById("d"+id);
+                var drawingsDiv = document.getElementById("d"+id);
                 //drawingsDiv.style.top = rect.top.toString()+"px";
                 //drawingsDiv.style.left = rect.left.toString()+"px";
 
                 addDrawings(act_val, drawingsDiv, 1, rect, data[i][j][2], j, i);
+                divContent[i][j] = drawingsDiv.innerHTML;
 
                 changes[i][j] = false;
             }
@@ -197,6 +213,7 @@ function clickButton(id)
         changes[y_pos][x_pos+1] = true;
 
     updateBoard();
+    console.log(data);
 }
 function onMouse(id)
 {
@@ -207,21 +224,77 @@ function onMouse(id)
 function offMouse(id)
 {
     drawingsDiv = document.getElementById("d"+id);
-    var rect = drawingsDiv.getBoundingClientRect();
-    var componentData = data[Math.floor(id/100)][id%100]
-    addDrawings(componentData[0], drawingsDiv, 1, rect, componentData[2], id%100, Math.floor(id/100));
+    drawingsDiv.innerHTML = divContent[Math.floor(id/100)][id%100];
+    //var rect = drawingsDiv.getBoundingClientRect();
+    //var componentData = data[Math.floor(id/100)][id%100]
+    //addDrawings(componentData[0], drawingsDiv, 1, rect, componentData[2], id%100, Math.floor(id/100));
 }
 
-function displayEquations(equations)
+function displayEquations(equations, solvedEquations, solvedFor)
 {
-    var display_string = "";
+    var display_string = "Initial Equations <br>";
     for (var i = 0; i < equations.length; i++) {
         console.log(equations[i]);
         display_string += "$"+equations[i]+"=0$<br>";
     }
+    display_string += "<br><br>Solved Equations <br>";
+
+    for (var i = 0; i < solvedEquations.length; i++) {
+        display_string += "$"+solvedFor[i]+"="+solvedEquations[i]+"$<br>";
+    }
+
     var equationsElement = document.getElementById('equations');
     equationsElement.innerHTML = display_string;
+
     MathJax.Hub.Queue(["Typeset",MathJax.Hub,equationsElement]);
+}
+
+function addCurrents(intersections, pointCurrents, newGrid)
+{
+    var i = 0;
+    for (var id in intersections)
+    {
+        var label = "P"+newGrid[Math.floor(id/100)][id%100][1];
+        i++;
+        var drawingsDiv = document.getElementById("d"+id);
+        var labelDiv = document.getElementById("l"+id);
+        labelDiv.innerHTML = "";
+
+        for (var j = 0; j < 4; j++) {
+            if (intersections[id][j] != "") {
+                var img = document.createElement("img");
+                console.log(pointCurrents);
+                console.log(intersections[id][j]);
+                console.log(label);
+                if (pointCurrents[label][intersections[id][j]][1] == label) {
+                    img.src = '/static/images/out_flow.svg';
+                }
+                else {
+                    img.src = '/static/images/in_flow.svg';
+                }
+                img.style.position = "absolute";
+                img.style.width = "50px";
+                img.style.height = "50px";
+                img.style.transform = "rotate("+j*90+"deg)";
+                drawingsDiv.appendChild(img);
+
+                var newLabel = document.createElement("div");
+                newLabel.innerHTML = "$i_{"+(pointCurrents[label][intersections[id][j]][0]+1)+"}$";
+                newLabel.style.position = "absolute";
+                newLabel.style.width = "25px";
+                newLabel.style.height = "25px";
+                var hOptions = ["center", "right", "center", "left"];
+                newLabel.style.textAlign = hOptions[j];
+                var tOptions = ["0px", "25px", "30px", "5px"];
+                var lOptions = ["25px", "25px", "0px", "0px"];
+                newLabel.style.left = lOptions[j];
+                newLabel.style.top = tOptions[j];
+                labelDiv.appendChild(newLabel);
+            }
+        }
+        divContent[Math.floor(id/100)][id%100] = drawingsDiv.innerHTML;
+    }
+    MathJax.Hub.Queue(["Typeset",MathJax.Hub,document.getElementById("content")]);
 }
 
 function sendData()
@@ -233,6 +306,7 @@ function sendData()
     .then(response => response.json())
     .then(data => {
       console.log('Success:', data);
-      displayEquations(data);
+      displayEquations(data[2], data[4], data[5]);
+      addCurrents(data[0], data[1], data[3]);
     })
 }

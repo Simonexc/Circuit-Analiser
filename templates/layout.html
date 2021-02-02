@@ -14,19 +14,11 @@
 </head>
 <body>
 </body>
-    <script>
-        x = {{x}};
-        y = {{y}};
-        sources = {{files|tojson}};
-        counters = {{counters|tojson}};
-        labels = {{labels|tojson}};
-        rotation_modes = {{rotation_modes|tojson}};
-        createData();
-    </script>
     <div id="top">
         <div id="inputs">
             <ul><input type="image" onclick="rotate()" src="/static/images/rotate.svg"></ul>
             <ul><input type="button" onclick="sendData()"></ul>
+            <ul><div id="top_inputs"></div></ul>
         </div>
         <div id="menu">
             {% for i in range(files|length - 1) %}
@@ -49,14 +41,20 @@
             {% endfor %}
         </tr>
         {% endfor %}
-        <script>
-            updateBoard();
-        </script>
         </table>
     </div>
     <div id="equations">
     </div>
-
+    <script>
+        x = {{x}};
+        y = {{y}};
+        sources = {{files|tojson}};
+        counters = {{counters|tojson}};
+        labels = {{labels|tojson}};
+        rotation_modes = {{rotation_modes|tojson}};
+        createData();
+        updateBoard();
+    </script>
 
 </body>
 </html>
