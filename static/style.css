@@ -9,10 +9,16 @@ padding:0;
     display:block;
 }
 #content {
-    top: 150px;
-    position: absolute;
+    top: 50px;
     width: 100%;
     display:block;
+}
+
+#equations {
+    top: 300px;
+    width: 100%;
+    text-align: center;
+    position: relative;
 }
 
 ul {

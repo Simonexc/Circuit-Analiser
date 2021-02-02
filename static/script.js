@@ -95,6 +95,7 @@ function addDrawings(act_val, drawingsDiv, opacity, rect, rot, x1, y1)
             var img = createImage(sources.length - 1, rect);
             img.style.opacity = opacity.toString();
             drawingsDiv.appendChild(img);
+            data[y1][x1][2] = 360;
         }
     }
     else {
@@ -138,36 +139,37 @@ function updateBoard()
     {
         for (var j = 0; j<x; j++)
         {
-            var act_val = data[i][j][0];
-            if (!changes[i][j] && act_val != 1)
-                continue;
-            var id = i*100+j;
-            id = id.toString();
-            /*
-            cell = document.getElementById("c"+id);
-            cell.style.top = (150+i*50)+"px";
-            cell.style.left = (200+j*50)+"px";
-            */
-            element = document.getElementById("i"+id);
-            var rect = element.getBoundingClientRect();
 
-            labelDiv = document.getElementById("l"+id);
-            //labelDiv.style.top = rect.top.toString()+"px";
-            //labelDiv.style.left = rect.left.toString()+"px";
-            labelDiv.innerHTML = "";
-            if (labels[act_val] != "")
-            {
-                labelDiv.innerHTML = "$"+labels[act_val]+"_"+data[i][j][1]+"$";
-                MathJax.Hub.Queue(["Typeset",MathJax.Hub,labelDiv]);
+            if (changes[i][j]) {
+                var act_val = data[i][j][0];
+                var id = i*100+j;
+                id = id.toString();
+                /*
+                cell = document.getElementById("c"+id);
+                cell.style.top = (150+i*50)+"px";
+                cell.style.left = (200+j*50)+"px";
+                */
+                element = document.getElementById("i"+id);
+                var rect = element.getBoundingClientRect();
+
+                labelDiv = document.getElementById("l"+id);
+                //labelDiv.style.top = rect.top.toString()+"px";
+                //labelDiv.style.left = rect.left.toString()+"px";
+                labelDiv.innerHTML = "";
+                if (labels[act_val] != "")
+                {
+                    labelDiv.innerHTML = "$"+labels[act_val]+"_"+(data[i][j][1]+1)+"$";
+                    MathJax.Hub.Queue(["Typeset",MathJax.Hub,labelDiv]);
+                }
+
+                drawingsDiv = document.getElementById("d"+id);
+                //drawingsDiv.style.top = rect.top.toString()+"px";
+                //drawingsDiv.style.left = rect.left.toString()+"px";
+
+                addDrawings(act_val, drawingsDiv, 1, rect, data[i][j][2], j, i);
+
+                changes[i][j] = false;
             }
-
-            drawingsDiv = document.getElementById("d"+id);
-            //drawingsDiv.style.top = rect.top.toString()+"px";
-            //drawingsDiv.style.left = rect.left.toString()+"px";
-
-            addDrawings(act_val, drawingsDiv, 1, rect, data[i][j][2], j, i);
-
-            changes[i][j] = false;
         }
     }
 }
@@ -179,11 +181,20 @@ function clickButton(id)
 
     updateNumbers(x_pos, y_pos);
 
-    counters[val]++;
     data[y_pos][x_pos][0] = val;
     data[y_pos][x_pos][1] = counters[val];
     data[y_pos][x_pos][2] = rotation;
+    counters[val]++;
     changes[y_pos][x_pos] = true;
+
+    if (y_pos > 0)
+        changes[y_pos-1][x_pos] = true;
+    if (y_pos < y-1)
+        changes[y_pos+1][x_pos] = true;
+    if (x_pos > 0)
+        changes[y_pos][x_pos-1] = true;
+    if (x_pos < x-1)
+        changes[y_pos][x_pos+1] = true;
 
     updateBoard();
 }
@@ -201,6 +212,18 @@ function offMouse(id)
     addDrawings(componentData[0], drawingsDiv, 1, rect, componentData[2], id%100, Math.floor(id/100));
 }
 
+function displayEquations(equations)
+{
+    var display_string = "";
+    for (var i = 0; i < equations.length; i++) {
+        console.log(equations[i]);
+        display_string += "$"+equations[i]+"=0$<br>";
+    }
+    var equationsElement = document.getElementById('equations');
+    equationsElement.innerHTML = display_string;
+    MathJax.Hub.Queue(["Typeset",MathJax.Hub,equationsElement]);
+}
+
 function sendData()
 {
     fetch("/", {
@@ -210,5 +233,6 @@ function sendData()
     .then(response => response.json())
     .then(data => {
       console.log('Success:', data);
+      displayEquations(data);
     })
 }
