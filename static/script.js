@@ -356,7 +356,7 @@ function displayEquations(equations, solvedEquations, solvedFor, result, time_eq
 
         MathJax.Hub.Queue(["Typeset",MathJax.Hub,equationsElement]);
     }
-    else {
+    else if (a==2) {
         var display_string = "Initial Equations <br>";
         for (var i = 0; i < equations.length; i++) {
             display_string += "$"+equations[i]+"=0$<br>";
@@ -430,7 +430,7 @@ function addCurrents(intersections, pointCurrents, newGrid)
 
 function sendData()
 {
-    state = (state + 1)%3;
+    state = (state + 1)%4;
     var prev = state - 1;
     if (prev < 0)
         prev = 2;

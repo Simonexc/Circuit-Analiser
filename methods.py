@@ -98,3 +98,37 @@ def final_x(eA, initial_conditions, final_conditions):
             ' + ' + sp.latex(final_conditions.evalf(5)) + ' = ' + sp.latex(sp.simplify(x.evalf(5))) + "$<br><br>"
 
     return text
+
+
+def operatorowa(equations, u_l, i_l, u_c, i_c, custom_symbols, Ls, Cs, xp, final_condition):
+    text = "Metoda operatorowa<br><br>"
+    s = sp.symbols('s')
+    t = sp.symbols('t', positive=True)
+    for i, u in enumerate(u_l):
+        equations.append(u - i_l[i]*s*Ls[i] + Ls[i]*xp[i])
+
+    for i, u in enumerate(u_c):
+        equations.append(u - i_c[i]/(Cs[i]*s) - xp[i+len(u_l)]/s)
+
+    equations = sp.Matrix(equations)
+    vars = tuple(list(i_l) + list(u_c) + list(u_l) + list(i_c) + list(custom_symbols))
+    print(equations)
+    result = sp.solve(equations, vars)
+    if len(result) == 0:
+        return text
+    print(result)
+    for i, u in enumerate(i_l):
+        val = sp.nsimplify(result[u].evalf(), full=True)
+        inv = sp.simplify(sp.inverse_laplace_transform(val, s, t))
+
+        text += '$I_{lp'+str(i)+'}(s)='+sp.latex(sp.simplify(val))+'\\implies i_{lp'+str(i)+'}(t)='+sp.latex(inv)+'$<br>'
+        text += '$i_{l'+str(i)+'}(t)='+sp.latex(final_condition[i]+inv)+'$<br>'
+
+    for i, u in enumerate(u_c):
+        val = sp.nsimplify(result[u].evalf(), full=True)
+        inv = sp.simplify(sp.inverse_laplace_transform(val, s, t))
+
+        text += '$U_{cp'+str(i)+'}(s)='+sp.latex(sp.simplify(val))+'\\implies u_{cp'+str(i)+'}(t)='+sp.latex(inv)+'$<br>'
+        text += '$u_{c' + str(i) + '}(t)=' + sp.latex(final_condition[i+len(i_l)] + inv)+'$<br>'
+
+    return text

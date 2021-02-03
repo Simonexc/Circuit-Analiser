@@ -137,6 +137,7 @@ def analise_circuit(input_circuit):
                 if next_point[0] not in 'IOEUP':
                     circle.append([next_point, -1 + 2*int(last_point != currents[next_point][1])])
 
+                print(circuit)
                 if circuit[next_point][0] == previous_point:
                     previous_point, next_point = next_point, circuit[next_point][1]
                 else:
@@ -159,7 +160,7 @@ def find_equations(circles, Is, currents, point_currents, currents_equations, il
             equations.append(ul[int(l[1:])])
         else:
             equations.append(il[int(l[1:])] - Is[currents[l][0]])
-            if state != 2:
+            if state < 2:
                 equations.append(ul[int(l[1:])] - zl[int(l[1:])]*il[int(l[1:])])
 
     for c in Cs:
@@ -172,7 +173,8 @@ def find_equations(circles, Is, currents, point_currents, currents_equations, il
         elif omega != 0:
             if state != 2:
                 equations.append(ic[int(c[1:])] - Is[currents[c][0]])
-                equations.append(uc[int(c[1:])] - ic[int(c[1:])] * zc[int(c[1:])])
+                if state != 3:
+                    equations.append(uc[int(c[1:])] - ic[int(c[1:])] * zc[int(c[1:])])
             else:
                 equations.append(c_symbols[int(c[1:])] * c_dot[int(c[1:])] - Is[currents[c][0]])
 
@@ -181,7 +183,6 @@ def find_equations(circles, Is, currents, point_currents, currents_equations, il
         for element, direction in circle:
             if element[0] == 'L':
                 if state == 2:
-                    print(element, l_symbols, l_dot, l_dot[int(element[1:])], l_symbols[int(element[1:])])
                     equation += direction*l_symbols[int(element[1:])]*l_dot[int(element[1:])]
                 else:
                     equation += direction*ul[int(element[1:])]

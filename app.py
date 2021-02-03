@@ -37,6 +37,7 @@ def home_func():
     global stable_state
     if request.method == 'POST':
         grid, (r_val, l_val, c_val, e_val, i_val), state = json.loads(request.data)
+
         grid_mod = find_intersections(copy.deepcopy(grid), labels)
 
         grid_switch = find_switches(copy.deepcopy(grid_mod), labels, min(1,state))
@@ -123,6 +124,11 @@ def home_func():
             send_more += lagrange(A)
             send_more += vectors(A)
             send_more += final_x(eA, passing,stable_state)
+
+            equations = find_equations(circles, Is, currents, point_currents, currents_equations,
+                                       il, uc, zl, zc, zr, Es, Ls, Cs, ul, ic, omega, 3, l_symbols, c_symbols,
+                                       l_dot, c_dot)
+            send_more += operatorowa(equations, ul, il, uc, ic, Is, l_val, c_val, passing, stable_state)
 
         response = app.response_class(response=json.dumps([intersections, point_currents, equations_latex,
                                                            grid_switch, solved_equations_latex, solved_for,
