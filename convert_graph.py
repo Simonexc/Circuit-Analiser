@@ -31,6 +31,26 @@ def find_switches(grid, labels, state):
     return grid
 
 
+def delete_sources(graph, sources_direction):
+    for key in list(graph.keys()):
+        nodes = graph[key]
+        if key[0] == "E" or key[0] == sources_direction["E"]:
+            graph[nodes[0]].remove(key)
+            if nodes[1] not in graph[nodes[0]]:
+                graph[nodes[0]].append(nodes[1])
+            graph[nodes[1]].remove(key)
+            if nodes[0] not in graph[nodes[1]]:
+                graph[nodes[1]].append(nodes[0])
+            del graph[key]
+
+        elif key[0] == "I" or key[0] == sources_direction["I"]:
+            for node in graph[key]:
+                graph[node].remove(key)
+            del graph[key]
+
+    return graph
+
+
 def convert_to_graph(grid, labels, rotation_modes, sources_direction):
     starting_point = None
     for i, l in enumerate(grid):

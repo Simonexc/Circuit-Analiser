@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Circuit Analiser</title>
+    <title>Circuit Analyzer</title>
     <link rel="stylesheet" href="static/style.css">
     <script type="text/x-mathjax-config">
       MathJax.Hub.Config({tex2jax: {inlineMath: [['$','$'], ['\\(','\\)']]}});
@@ -17,12 +17,18 @@
     <div id="top">
         <div id="inputs">
             <ul><input type="image" onclick="rotate()" src="/static/images/rotate.svg"></ul>
-            <ul><input type="button" onclick="sendData()"></ul>
-            <ul><div id="top_inputs"></div></ul>
+            <ul style="width: 100px;"><input type="button" value="Analyze" onclick="sendData()"></ul>
+            <ul><p id="first_label"></p></ul>
+            <ul style="width: 100px;"><input type="text" id="input1"></ul>
+            <ul><p>$^\circ$</p></ul>
+            <ul style="width: 100px;"><input type="text" id="input2"></ul>
+            <ul><p>$\omega$</p></ul>
+            <ul style="width: 100px;"><input type="text" id="input3"></ul>
+            <ul style="width: 100px;"><input type="button" id="accept" value="Accept" onclick="getInput()" disabled></ul>
         </div>
         <div id="menu">
             {% for i in range(files|length - 1) %}
-            <ul><input type="image" id="t{{i}}" onclick="val = {{i}}" src={{files[i]}}></ul>
+            <ul><input type="image" id="t{{i}}" onclick="changeVal({{i}})" src={{files[i]}}></ul>
             {% endfor %}
         </div>
     </div>
@@ -44,6 +50,10 @@
         </table>
     </div>
     <div id="equations">
+    </div>
+    <div id="equations2">
+    </div>
+    <div id="equations3">
     </div>
     <script>
         x = {{x}};

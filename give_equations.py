@@ -2,9 +2,9 @@ import sympy as sp
 
 
 def define_symbols_from_graph(grid, labels):
-    # R L C E
-    keys = "RLCE"
-    count = [0]*4
+    # R L C E I
+    keys = "RLCEI"
+    count = [0]*5
     for i, l in enumerate(grid):
         for j, cell in enumerate(l):
             count[keys.find(labels[grid[i][j][0]])] += 1
@@ -12,16 +12,23 @@ def define_symbols_from_graph(grid, labels):
     zr = [sp.Symbol(f'Z_r{i+1}') for i in range(count[0])]
 
     il = [sp.Symbol(f'i_l{i+1}') for i in range(count[1])]
+    ul = [sp.Symbol(f'u_l{i+1}') for i in range(count[1])]
     zl = [sp.Symbol(f'Z_l{i+1}') for i in range(count[1])]
+    l_symbols = [sp.Symbol(f'L_{i+1}') for i in range(count[1])]
+    l_dot = [sp.Symbol('\\dot{i_{l'+str(i+1)+'}}') for i in range(count[1])]
     Ls = [f'L{i}' for i in range(count[1])]
 
+    ic = [sp.Symbol(f'i_c{i + 1}') for i in range(count[2])]
     uc = [sp.Symbol(f'u_c{i + 1}') for i in range(count[2])]
     zc = [sp.Symbol(f'Z_c{i + 1}') for i in range(count[2])]
+    c_symbols = [sp.Symbol(f'C_{i + 1}') for i in range(count[2])]
+    c_dot = [sp.Symbol('\\dot{u_{c' + str(i + 1) + '}}') for i in range(count[2])]
     Cs = [f'C{i}' for i in range(count[2])]
 
     Es = [sp.Symbol(f'e_{i+1}') for i in range(count[3])]
+    Is = [sp.Symbol(f'I_{i+1}') for i in range(count[4])]
 
-    return zr, il, zl, Ls, uc, zc, Cs, Es
+    return zr, il, zl, Ls, uc, zc, Cs, Es, Is, ul, ic, l_symbols, c_symbols, l_dot, c_dot
 
 
 def get_point(point, connection_points):
@@ -39,7 +46,8 @@ def analise_circuit(input_circuit):
     currents = {element: [-1, ''] for element in circuit_elements if element[0] not in 'P'}
     point_currents = {element: {component: [-1, ''] for component in connection_points[element]}
                       for element in circuit_elements if element[0] == 'P'}
-    current_sources = [sp.Symbol(element[0]+'_'+element[1:]) for element in circuit_elements if element[0] == 'I']
+    current_sources = [sp.Symbol(element[0]+'_'+str(int(element[1:])+1))
+                       for element in circuit_elements if element[0] == 'I']
     currents_n = 0
     circles = []
     Is = []
@@ -139,28 +147,50 @@ def analise_circuit(input_circuit):
     return circles, Is, currents, point_currents, currents_equations
 
 
-def find_equations(circles, Is, currents, point_currents, currents_equations, il, uc, zl, zc, zr, Es, Ls, Cs):
+def find_equations(circles, Is, currents, point_currents, currents_equations, il, uc, zl, zc, zr, Es, Ls, Cs, ul, ic,
+                   omega, state, l_symbols, c_symbols, l_dot, c_dot):
     equations = currents_equations.copy()
+    null_subs = []
+    print(ic)
 
     for l in Ls:
         if l not in currents:
             equations.append(il[int(l[1:])])
+            equations.append(ul[int(l[1:])])
         else:
             equations.append(il[int(l[1:])] - Is[currents[l][0]])
+            if state != 2:
+                equations.append(ul[int(l[1:])] - zl[int(l[1:])]*il[int(l[1:])])
+
     for c in Cs:
         if c not in currents:
+            if state == 2:
+                equations.append(c_symbols[int(c[1:])]*c_dot[int(c[1:])])
+            else:
+                equations.append(ic[int(c[1:])])
             equations.append(uc[int(c[1:])])
-        else:
-            equations.append(uc[int(c[1:])] - Is[currents[c][0]] * zc[int(c[1:])])
+        elif omega != 0:
+            if state != 2:
+                equations.append(ic[int(c[1:])] - Is[currents[c][0]])
+                equations.append(uc[int(c[1:])] - ic[int(c[1:])] * zc[int(c[1:])])
+            else:
+                equations.append(c_symbols[int(c[1:])] * c_dot[int(c[1:])] - Is[currents[c][0]])
 
     for circle in circles:
         equation = sp.sympify(0)
         for element, direction in circle:
             if element[0] == 'L':
-                equation += direction*Is[currents[element][0]] * zl[int(element[1:])]
+                if state == 2:
+                    print(element, l_symbols, l_dot, l_dot[int(element[1:])], l_symbols[int(element[1:])])
+                    equation += direction*l_symbols[int(element[1:])]*l_dot[int(element[1:])]
+                else:
+                    equation += direction*ul[int(element[1:])]
 
             elif element[0] == 'C':
-                equation += direction * Is[currents[element][0]] * zc[int(element[1:])]
+                equation += direction * uc[int(element[1:])]
+                if omega == 0:
+                    if Is[currents[element][0]] not in null_subs:
+                        null_subs.append(Is[currents[element][0]])
 
             elif element[0] == 'R':
                 equation += direction*Is[currents[element][0]] * zr[int(element[1:])]
@@ -168,6 +198,9 @@ def find_equations(circles, Is, currents, point_currents, currents_equations, il
                 equation += direction*Es[int(element[1:])]
 
         equations.append(equation)
+
+    for sub in null_subs:
+        equations.append(sub)
 
     for point in list(point_currents.keys())[:-1]:
         equation = sp.sympify(0)
