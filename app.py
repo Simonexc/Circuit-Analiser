@@ -124,6 +124,14 @@ def home_func():
             send_more += vectors(A)
             send_more += final_x(eA, passing,stable_state)
 
+<<<<<<< Updated upstream
+=======
+            #equations = find_equations(circles, Is, currents, point_currents, currents_equations,
+            #                           il, uc, zl, zc, zr, Es, Ls, Cs, ul, ic, omega, 3, l_symbols, c_symbols,
+            #                           l_dot, c_dot)
+            # send_more += operatorowa(equations, ul, il, uc, ic, Is, l_val, c_val, passing, stable_state)
+
+>>>>>>> Stashed changes
         response = app.response_class(response=json.dumps([intersections, point_currents, equations_latex,
                                                            grid_switch, solved_equations_latex, solved_for,
                                                            calc_equations_latex, time_equations_latex,

@@ -27,6 +27,8 @@ def find_omega(graph, i_val, e_val):
 def substitute_sources(es, symbols, equations):
     for i, source in enumerate(es):
         sub = source[0]*sp.exp(sp.I*source[1]/180*sp.pi)
+        if source[2] != 0:
+            sub /= sp.sqrt(2)
         for j in range(len(equations)):
             equations[j] = equations[j].subs(symbols[i], sub)
 
