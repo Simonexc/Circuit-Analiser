@@ -1,10 +1,10 @@
 from flask import Flask, render_template, request
+from sympy.parsing.latex import parse_latex
 import json
 import copy
 from convert_graph import *
 from give_equations import *
 from initial_conditions import *
-from methods import *
 import sympy as sp
 
 
@@ -27,39 +27,61 @@ counters = [0 for f in files]
 labels = ["", "", "R", "C", "L", "E", "I", "S", "P"]
 rotation_modes = [0, 0, 2, 2, 2, 1, 1, 2, 0]
 sources_direction = {"I": "O", "E": "U"}
-passing = None
-stable_state = None
+equations = []
 
 
 @app.route("/", methods=["GET", "POST"])
 def home_func():
-    global passing
-    global stable_state
+    global equations
     if request.method == 'POST':
-        grid, (r_val, l_val, c_val, e_val, i_val), state = json.loads(request.data)
-        grid_mod = find_intersections(copy.deepcopy(grid), labels)
+        flag, data = json.loads(request.data)
+        response = ""
+        if flag == 0:
+            grid = data
+            grid_mod = find_intersections(copy.deepcopy(grid), labels)
 
-        grid_switch = find_switches(copy.deepcopy(grid_mod), labels, min(1,state))
-        graph = convert_to_graph(copy.deepcopy(grid_switch), labels, rotation_modes, sources_direction)
+            grid_switch = find_switches(copy.deepcopy(grid_mod), labels, 0)
+            graph = convert_to_graph(copy.deepcopy(grid_switch), labels, rotation_modes, sources_direction)
 
-        if state == 2:
-            graph = delete_sources(graph, sources_direction)
+            graph_mod = filter_graph(copy.deepcopy(graph))
+            intersections = find_neighbours(grid_switch, graph_mod, labels, sources_direction)
 
-        graph_mod = filter_graph(copy.deepcopy(graph))
-        intersections = find_neighbours(grid_switch, graph_mod, labels, sources_direction)
+            symbols = define_symbols_from_graph(grid, labels)
 
-        zr, il, zl, Ls, uc, zc, Cs, Es, I_power, ul, ic, l_symbols, c_symbols, l_dot, c_dot = define_symbols_from_graph(grid, labels)
-        print(ul, ic)
-
-        circles, Is, currents, point_currents, currents_equations = analise_circuit(graph_mod)
-        if state == 2:
+            circles, Is, currents, point_currents, currents_equations = analise_circuit(graph_mod)
             omega = 1
-        else:
-            omega = find_omega(graph_mod, i_val, e_val)
-        equations = find_equations(circles, Is, currents, point_currents, currents_equations,
-                                   il, uc, zl, zc, zr, Es, Ls, Cs, ul, ic, omega, state, l_symbols, c_symbols, l_dot, c_dot)
-        equations_latex = [sp.latex(equation) for equation in equations]
+            equations = find_equations(circles, Is, currents, point_currents, currents_equations, omega, 0, symbols)
+            equations_latex = [sp.latex(equation) for equation in equations]
 
+            response = app.response_class(response=json.dumps([intersections, point_currents, grid_switch,
+                                                               equations_latex]),
+                                          status=200,
+                                          mimetype='application/json')
+        elif flag == 1:
+            value, id = data
+            if value == "":
+                equations.pop(id)
+            else:
+                eq = parse_latex(value)
+                if id < len(equations):
+                    equations[id] = eq
+                else:
+                    equations.append(eq)
+            equations_latex = [sp.latex(equation) for equation in equations]
+            response = app.response_class(response=json.dumps(equations_latex),
+                                          status=200,
+                                          mimetype='application/json')
+
+        return response
+
+    return render_template("layout.html", files=files, x=x, y=y, counters=counters, labels=labels,
+                           rotation_modes=rotation_modes)
+
+
+if __name__ == "__main__":
+    app.run()
+
+'''
         if state == 2:
             solved_equations = solve_initial_conditions(equations, l_dot, c_dot, Is)
             print(solved_equations)
@@ -120,8 +142,8 @@ def home_func():
             send_more = "$A="+sp.latex(A)+"$<br><br>"
             eA, text = hamilton(A)
             send_more += text
-            send_more += lagrange(A)
-            send_more += vectors(A)
+            #send_more += lagrange(A)
+            #send_more += vectors(A)
             send_more += final_x(eA, passing,stable_state)
 
             #equations = find_equations(circles, Is, currents, point_currents, currents_equations,
@@ -137,9 +159,4 @@ def home_func():
                                       status=200,
                                       mimetype='application/json')
         return response
-    return render_template("layout.html", files=files, x=x, y=y, counters=counters, labels=labels,
-                           rotation_modes=rotation_modes)
-
-
-if __name__ == "__main__":
-    app.run()
+        '''

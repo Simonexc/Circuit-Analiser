@@ -9,53 +9,19 @@ var changes = [];
 var rotation = 0;
 var rotation_modes = [];
 var divContent = [];
-var Cs = [];
-var Ls = [];
-var Es = [];
-var Is = [];
-var Rs = [];
-var clicked = false;
-var state = 0;
+var latex = [];
+var reloadEquations = false;
 
+// changes current active block
 function changeVal(value)
 {
-    if (clicked)
-        return;
     val = value;
 }
 
+// change rotation
 function rotate()
 {
     rotation = (rotation+90)%360;
-    console.log(rotation);
-}
-
-function getInput()
-{
-    console.log(val);
-    var first_val = parseFloat(document.getElementById('input1').value);
-    var deg_val = parseFloat(document.getElementById('input2').value);
-    var omega_val = parseFloat(document.getElementById('input3').value);
-
-    if (labels[val] == "R") {
-        Rs.push(first_val);
-    }
-    else if (labels[val] == "C") {
-        Cs.push(first_val);
-    }
-    else if (labels[val] == "L") {
-        Ls.push(first_val);
-    }
-    else if (labels[val] == "E") {
-        Es.push([first_val, deg_val, omega_val]);
-    }
-    else if (labels[val] == "I") {
-        Is.push([first_val, deg_val, omega_val]);
-    }
-
-    var acceptButton = document.getElementById('accept');
-    acceptButton.disabled = true;
-    clicked = false;
 }
 
 function createData()
@@ -85,8 +51,6 @@ function createImage(act_val, rect)
     img.style.position = "absolute";
     img.style.width = "50px";
     img.style.height = "50px";
-    //img.style.top = rect.top.toString()+"px";
-    //img.style.left = rect.left.toString()+"px";
 
     return img;
 }
@@ -171,26 +135,6 @@ function updateNumbers(x_pos, y_pos)
     act_val = data[y_pos][x_pos][0];
     count_val = data[y_pos][x_pos][1];
     counters[act_val]--;
-    console.log(labels[act_val]);
-    if ("LCREI".includes(labels[act_val]) && labels[val] != "") {
-        console.log(labels[act_val]);
-        if (labels[act_val] == "R") {
-            Rs.splice(count_val, 1);
-        }
-        else if (labels[act_val] == "C") {
-            Cs.splice(count_val, 1);
-        }
-        else if (labels[act_val] == "L") {
-            Ls.splice(count_val, 1);
-        }
-        else if (labels[act_val] == "E") {
-            Es.splice(count_val, 1);
-        }
-        else if (labels[act_val] == "I") {
-            Is.splice(count_val, 1);
-        }
-        console.log(Cs);
-    }
 
     for (var i = 0; i < y; i++)
     {
@@ -216,17 +160,11 @@ function updateBoard()
                 var act_val = data[i][j][0];
                 var id = i*100+j;
                 id = id.toString();
-                /*
-                cell = document.getElementById("c"+id);
-                cell.style.top = (150+i*50)+"px";
-                cell.style.left = (200+j*50)+"px";
-                */
+
                 element = document.getElementById("i"+id);
                 var rect = element.getBoundingClientRect();
 
                 var labelDiv = document.getElementById("l"+id);
-                //labelDiv.style.top = rect.top.toString()+"px";
-                //labelDiv.style.left = rect.left.toString()+"px";
                 labelDiv.innerHTML = "";
                 if (labels[act_val] != "")
                 {
@@ -235,8 +173,6 @@ function updateBoard()
                 }
 
                 var drawingsDiv = document.getElementById("d"+id);
-                //drawingsDiv.style.top = rect.top.toString()+"px";
-                //drawingsDiv.style.left = rect.left.toString()+"px";
 
                 addDrawings(act_val, drawingsDiv, 1, rect, data[i][j][2], j, i);
                 divContent[i][j] = drawingsDiv.innerHTML;
@@ -249,8 +185,6 @@ function updateBoard()
 
 function clickButton(id)
 {
-    if (clicked)
-        return;
     y_pos = Math.floor(id/100);
     x_pos = id%100;
 
@@ -261,16 +195,6 @@ function clickButton(id)
     data[y_pos][x_pos][2] = rotation;
     counters[val]++;
     changes[y_pos][x_pos] = true;
-
-    if ("LCREI".includes(labels[val]) && labels[val] != "") {
-        clicked = true;
-        var acceptButton = document.getElementById('accept');
-        acceptButton.disabled = false;
-
-        var dataLabel = document.getElementById('first_label');
-        dataLabel.innerHTML = "$"+labels[val]+"_{"+counters[val]+"}$";
-        MathJax.Hub.Queue(["Typeset",MathJax.Hub,dataLabel]);
-    }
 
     if (y_pos > 0)
         changes[y_pos-1][x_pos] = true;
@@ -285,23 +209,16 @@ function clickButton(id)
 }
 function onMouse(id)
 {
-    if (clicked)
-        return;
     drawingsDiv = document.getElementById("d"+id);
     var rect = drawingsDiv.getBoundingClientRect();
     addDrawings(val, drawingsDiv, 0.4, rect, rotation, id%100, Math.floor(id/100));
 }
 function offMouse(id)
 {
-    if (clicked)
-        return;
     drawingsDiv = document.getElementById("d"+id);
     drawingsDiv.innerHTML = divContent[Math.floor(id/100)][id%100];
-    //var rect = drawingsDiv.getBoundingClientRect();
-    //var componentData = data[Math.floor(id/100)][id%100]
-    //addDrawings(componentData[0], drawingsDiv, 1, rect, componentData[2], id%100, Math.floor(id/100));
 }
-
+/*
 function displayEquations(equations, solvedEquations, solvedFor, result, time_equations, initial_conditions, variables_latex, passing, a, methods)
 {
     console.log(a);
@@ -373,6 +290,98 @@ function displayEquations(equations, solvedEquations, solvedFor, result, time_eq
         MathJax.Hub.Queue(["Typeset",MathJax.Hub,equationsElement]);
     }
 }
+*/
+
+function addLineEquations(i)
+{
+    var line = document.createElement("div");
+    line.classList.add('line');
+
+    var ul_eq = document.createElement("ul");
+    ul_eq.classList.add('eq');
+    ul_eq.id = "eq"+i;
+
+    var button = document.createElement("input");
+    button.setAttribute("type", "image");
+    button.setAttribute("src", "/static/images/blank.svg");
+    button.setAttribute("onclick", "activateTextInput("+i+")");
+    button.classList.add('eq');
+    button.id = "bi"+i;
+    ul_eq.appendChild(button);
+
+    var eq = document.createElement("p");
+    eq.classList.add('eq');
+    eq.innerHTML = "$"+latex[i]+"$";
+    ul_eq.appendChild(eq);
+
+    line.appendChild(ul_eq);
+
+    var ul_zero = document.createElement("ul");
+    ul_zero.classList.add('zero');
+
+    if (latex[i] != "Add") {
+        var zero = document.createElement("p");
+        zero.classList.add('zero');
+        zero.innerHTML = "$=0$";
+        ul_zero.appendChild(zero);
+    }
+
+    line.appendChild(ul_zero);
+
+    return line;
+}
+
+function displayEquations()
+{
+    var equationsElement = document.getElementById('equations');
+    equationsElement.innerHTML = "";
+    reloadEquations = false;
+    latex.push("Add");
+
+    for (var i = 0; i < latex.length; i++) {
+        equationsElement.appendChild(addLineEquations(i));
+    }
+
+    MathJax.Hub.Queue(["Typeset",MathJax.Hub,equationsElement]);
+}
+
+function activateTextInput(id)
+{
+    if (reloadEquations)
+        return;
+    reloadEquations = true;
+    var parent = document.getElementById('eq'+id);
+
+    var button = document.getElementById('bi'+id);
+    parent.removeChild(button);
+
+    var text = document.createElement("input");
+    text.setAttribute("type", "text");
+    text.setAttribute("autofocus", true);
+    text.setAttribute("value", latex[id]);
+    text.setAttribute("onfocusout", "updateEquations("+id+")");
+    text.classList.add('eq');
+    text.id = "text"+id;
+
+    parent.appendChild(text);
+
+}
+
+function updateEquations(id)
+{
+    var value = document.getElementById("text"+id).value;
+    latex[id] = value;
+    fetch("/", {
+        method: "POST",
+        body: JSON.stringify([1, [value, id]])
+    })
+    .then(response => response.json())
+    .then(data => {
+      console.log('Success:', data);
+      latex = data;
+      displayEquations();
+    });
+}
 
 function addCurrents(intersections, pointCurrents, newGrid)
 {
@@ -430,19 +439,16 @@ function addCurrents(intersections, pointCurrents, newGrid)
 
 function sendData()
 {
-    state = (state + 1)%3;
-    var prev = state - 1;
-    if (prev < 0)
-        prev = 2;
     fetch("/", {
         method: "POST",
-        body: JSON.stringify([data, [Rs, Ls, Cs, Es, Is], prev])
+        body: JSON.stringify([0, data])
     })
     .then(response => response.json())
     .then(data => {
       console.log('Success:', data);
-      displayEquations(data[2], data[4], data[5], data[6], data[7], data[8], data[9], data[10], prev, data[11]);
-      addCurrents(data[0], data[1], data[3]);
+      latex = data[3];
+      displayEquations();
+      addCurrents(data[0], data[1], data[2]);
     });
 
 }

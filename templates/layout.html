@@ -16,19 +16,12 @@
 </body>
     <div id="top">
         <div id="inputs">
-            <ul><input type="image" onclick="rotate()" src="/static/images/rotate.svg"></ul>
-            <ul style="width: 100px;"><input type="button" value="Analyze" onclick="sendData()"></ul>
-            <ul><p id="first_label"></p></ul>
-            <ul style="width: 100px;"><input type="text" id="input1"></ul>
-            <ul><p>$^\circ$</p></ul>
-            <ul style="width: 100px;"><input type="text" id="input2"></ul>
-            <ul><p>$\omega$</p></ul>
-            <ul style="width: 100px;"><input type="text" id="input3"></ul>
-            <ul style="width: 100px;"><input type="button" id="accept" value="Accept" onclick="getInput()" disabled></ul>
+            <ul class="classic"><input type="image" onclick="rotate()" src="/static/images/rotate.svg"></ul>
+            <ul class="classic" style="width: 100px"><input type="button" value="Analyze" onclick="sendData()" style="top: 5px"></ul>
         </div>
         <div id="menu">
             {% for i in range(files|length - 1) %}
-            <ul><input type="image" id="t{{i}}" onclick="changeVal({{i}})" src={{files[i]}}></ul>
+            <ul class="classic"><input type="image" id="t{{i}}" onclick="changeVal({{i}})" src={{files[i]}}></ul>
             {% endfor %}
         </div>
     </div>
@@ -39,8 +32,9 @@
         <tr>
             {% for j in range(x) %}
             <td id="c{{i*100+j}}">
-                <input type="image" src="/static/images/blank.svg" id="i{{i*100+j}}" onclick="clickButton({{i*100+j}})"
-                onmouseover="onMouse({{i*100+j}})" onmouseout="offMouse({{i*100+j}})">
+                <input type="image" src="/static/images/blank.svg" id="i{{i*100+j}}"
+                       onclick="clickButton({{i*100+j}})" onmouseover="onMouse({{i*100+j}})"
+                       onmouseout="offMouse({{i*100+j}})">
                 <div class="label" id="l{{i*100+j}}"></div>
                 <div class="drawings" id="d{{i*100+j}}"></div>
             </td>

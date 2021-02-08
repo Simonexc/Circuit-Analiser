@@ -1,6 +1,7 @@
 * {
 margin:0;
 padding:0;
+font-size: 15px;
 }
 
 #top {
@@ -21,11 +22,28 @@ padding:0;
     position: relative;
 }
 
-ul {
-list-style:none;
-display:inline-block;
+ul.classic {
 width: 50px;
 height: 50px;
+}
+
+ul {
+    list-style:none;
+    display:inline-block;
+}
+ul.eq {
+    position: relative;
+    width: 75%;
+    height: 100%;
+}
+ul.zero {
+    position: relative;
+    width: 20%;
+    height: 100%;
+}
+div.line {
+    width: 100%;
+    height: 30px;
 }
 
 table {
@@ -33,9 +51,6 @@ table {
     cell-spacing: 0;
     cell-padding: 0;
     margin: 0 auto;
-}
-
-tr {
 }
 
 td, li {
@@ -82,11 +97,21 @@ input {
     width: 100px;
     height: 40px;
 }
-p {
+p.zero {
     position: absolute;
     display: block;
-    height: 50px;
+    top: 6px;
+    height: 20px;
     width: 50px;
+    text-align: left;
+}
+
+p.eq {
+    position: absolute;
+    display: block;
+    top: 5px;
+    height: 20px;
+    width: 100%;
     text-align: right;
 }
 
@@ -96,6 +121,25 @@ input[type=image] {
     border: none;
     outline: none;
     z-index: 10;
+}
+
+input[type=image].eq {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    border: none;
+    outline: none;
+    z-index: 10;
+}
+
+input[type=text].eq {
+    position: absolute;
+    width: 100%;
+    top: 5px;
+    height: 20px;
+    border: none;
+    outline: none;
+    text-align: right;
 }
 
 br {

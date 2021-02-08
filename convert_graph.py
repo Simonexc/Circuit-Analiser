@@ -1,6 +1,7 @@
 def find_intersections(grid, labels):
     first_wire = None
     count = 0
+
     for i, l in enumerate(grid):
         for j, cell in enumerate(l):
             if cell[0] == 1 and cell[2] == 360:
